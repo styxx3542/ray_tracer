@@ -16,6 +16,8 @@ pub mod primitives {
 pub mod rtc {
     pub mod ray;
     pub mod intersection;
+    pub mod object;
+    pub mod shape;
     pub mod shapes{
         pub mod sphere;
     }
