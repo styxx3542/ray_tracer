@@ -1,7 +1,7 @@
 use crate::{rtc::shape::Shape, primitives::{Matrix, Vector, Point, Tuple}};
 
 use super::{ray::Ray, intersection::Intersections}; 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Object{
     shape: Shape,
     transform: Matrix,
@@ -15,8 +15,9 @@ impl<'a> Object{
         }
     }
 
-    pub fn intersect(&'a self, ray: &'a Ray) -> Intersections {
-        self.shape.intersect(ray, self)
+    pub fn intersect(&self, ray: &'a Ray) -> Intersections {
+        let transformed_ray = ray.transform(&self.transform.inverse().unwrap());
+        self.shape.intersect(&transformed_ray, self)
     }
 
     pub fn set_transform(mut self, transform: Matrix) -> Self{
@@ -104,5 +105,17 @@ mod tests{
         let transform = Matrix::id().translate(2.0, 3.0, 4.0);
         sphere = sphere.set_transform(transform);
         assert_eq!(sphere.transform, transform);
+    }
+
+    #[test]
+    fn intersect_scaled_sphere_with_ray(){
+        let ray = Ray::new(Point::new(0.0,0.0,-5.0),Vector::new(0.0, 0.0, 1.0));
+        let mut sphere = Object::new_sphere();
+        let transform = Matrix::id().scale(2.0, 2.0, 2.0);
+        sphere = sphere.set_transform(transform);
+        assert_eq!(sphere.transform, transform);
+        let intersections = sphere.intersect(&ray);
+        assert_eq!(intersections.count(), 2);
+          
     }
 }

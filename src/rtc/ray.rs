@@ -1,5 +1,5 @@
 use crate::primitives::{Point, Vector, Tuple, Matrix};
-
+#[derive(Debug, Clone, Copy)]
 pub struct Ray{
     pub origin: Point,
     pub direction: Vector,
@@ -13,13 +13,12 @@ impl Ray {
         self.origin + self.direction*time
     }
 
-    pub fn transform(&self, transform: Matrix) -> Self{
-        Ray::new(transform * self.origin, transform * self.direction)
+    pub fn transform(&self, transform: &Matrix) -> Self{
+        Ray::new(*transform * self.origin, *transform * self.direction)
     }
 }
 #[cfg(test)]
 mod tests{
-
     use super::*;
     #[test]
     fn create_ray(){
@@ -44,7 +43,7 @@ mod tests{
     fn test_transform(){
         let r = Ray::new(Point::new(1.0, 2.0, 3.0), Vector::new(0.0, 1.0, 0.0));
         let m = Matrix::id().translate(3.0, 4.0, 5.0);
-        let r2 = r.transform(m);
+        let r2 = r.transform(&m);
         assert_eq!(r2.origin, Point::new(4.0, 6.0, 8.0));
         assert_eq!(r2.direction, Vector::new(0.0, 1.0, 0.0));
     }
@@ -53,8 +52,12 @@ mod tests{
     fn test_scale(){
         let r = Ray::new(Point::new(1.0, 2.0, 3.0), Vector::new(0.0, 1.0, 0.0));
         let m = Matrix::id().scale(2.0, 3.0, 4.0);
-        let r2 = r.transform(m);
+        let r2 = r.transform(&m);
         assert_eq!(r2.origin, Point::new(2.0, 6.0, 12.0));
         assert_eq!(r2.direction, Vector::new(0.0, 3.0, 0.0));
     }
+
+    #[test]
+    fn test
+    
 }       
