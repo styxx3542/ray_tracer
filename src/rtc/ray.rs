@@ -56,8 +56,5 @@ mod tests{
         assert_eq!(r2.origin, Point::new(2.0, 6.0, 12.0));
         assert_eq!(r2.direction, Vector::new(0.0, 3.0, 0.0));
     }
-
-    #[test]
-    fn test
-    
+   
 }       

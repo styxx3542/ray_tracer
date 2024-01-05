@@ -1,5 +1,4 @@
 use std::{cmp::Ord, cmp::Ordering, cmp::PartialOrd, ops::Index};
-
 use super::object::Object;
 #[derive(Debug, PartialEq, Clone)]
 pub struct Intersection<'a> {
@@ -44,7 +43,7 @@ impl<'a> Ord for Intersection<'a> {
 
 impl<'a> std::cmp::Eq for Intersection<'a> {}
 
-
+#[derive(Debug)]
 pub struct Intersections<'a> {
     intersections: Vec<Intersection<'a>>,
 }
