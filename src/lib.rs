@@ -4,8 +4,10 @@ pub mod primitives {
     pub use point::Point;
     pub use tuple::Tuple;
     pub use vector::Vector;
-    mod canvas;
-    mod color;
+    pub use canvas::Canvas;
+    pub use color::Color;
+    pub mod canvas;
+    pub mod color;
     mod matrix;
     mod matrix2;
     mod matrix3;

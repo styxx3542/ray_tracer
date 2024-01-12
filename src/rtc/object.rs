@@ -8,6 +8,8 @@ use super::{intersection::Intersections, ray::Ray};
 pub struct Object {
     shape: Shape,
     transform: Matrix,
+    transform_inverse: Matrix,
+    transform_inverse_transpose: Matrix,
 }
 
 impl<'a> Object {
@@ -19,14 +21,23 @@ impl<'a> Object {
     }
 
     pub fn intersect(&self, ray: &'a Ray) -> Intersections {
-        let transformed_ray = ray.transform(&self.transform.inverse().unwrap());
-        assert_eq!(transformed_ray.direction, self.transform.inverse().unwrap() * ray.direction);
+        let transformed_ray = ray.transform(&self.transform_inverse);
+        assert_eq!(transformed_ray.direction, self.transform_inverse * ray.direction);
         self.shape.intersect(&transformed_ray, self)
     }
 
     pub fn set_transform(mut self, transform:&Matrix) -> Self {
         self.transform = *transform;
+        self.transform_inverse = (*transform).inverse().unwrap();
+        self.transform_inverse_transpose = self.transform_inverse.transpose();
         self
+    }
+    pub fn normal_at(&self, world_point: &Point) -> Vector{
+        let object_point = self.transform_inverse * *world_point;
+        let object_normal = self.shape.normal_at(&object_point);
+        let world_normal = self.transform_inverse_transpose * object_normal;
+        world_normal.normalize()
+
     }
 }
 
@@ -41,6 +52,8 @@ impl Default for Object {
         Object {
             shape: Shape::Sphere,
             transform: Matrix::id(),
+            transform_inverse : Matrix::id(),
+            transform_inverse_transpose : Matrix::id(),
         }
     }
 }
