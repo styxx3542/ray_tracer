@@ -31,6 +31,9 @@ impl Vector {
             z: self.x * other.y() - self.y * other.x(),
         }
     }
+    pub fn reflect(&self, normal: &Vector) -> Vector {
+        *self - *normal * 2.0 * self.dot_product(*normal)
+    }  
 }
 impl Tuple for Vector {
     fn x(&self) -> f64 {
@@ -112,7 +115,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_vector() {
+    fn vector() {
         let v = Vector::new(4.3, -4.2, 3.1);
         assert_eq!(v.x(), 4.3);
         assert_eq!(v.y(), -4.2);
@@ -120,24 +123,24 @@ mod tests {
         assert_eq!(v.w(), 0.0);
     }
     #[test]
-    fn test_vector_addition() {
+    fn vector_addition() {
         let v1 = Vector::new(3.0, -2.0, 5.0);
         let v2 = Vector::new(-2.0, 3.0, 1.0);
         assert_eq!(v1 + v2, Vector::new(1.0, 1.0, 6.0));
     }
     #[test]
-    fn test_vector_subtraction() {
+    fn vector_subtraction() {
         let p1 = Vector::new(3.0, 2.0, 1.0);
         let p2 = Vector::new(5.0, 6.0, 7.0);
         assert_eq!(p1 - p2, Vector::new(-2.0, -4.0, -6.0));
     }
     #[test]
-    fn test_vector_negation() {
+    fn vector_negation() {
         let v = Vector::new(1.0, -2.0, 3.0);
         assert_eq!(-v, Vector::new(-1.0, 2.0, -3.0));
     }
     #[test]
-    fn test_vector_scalar_multiplication() {
+    fn vector_scalar_multiplication() {
         let v = Vector::new(1.0, -2.0, 3.0);
         assert_eq!(v * 3.5, Vector::new(3.5, -7.0, 10.5));
         assert_eq!(v * 0.5, Vector::new(0.5, -1.0, 1.5));
@@ -145,13 +148,13 @@ mod tests {
         assert_eq!(v * 1.0, v);
     }
     #[test]
-    fn test_vector_magnitude() {
+    fn vector_magnitude() {
         assert_eq!(Vector::new(1.0, 2.0, 4.0).magnitude(), 21.0f64.sqrt());
         assert_eq!(Vector::new(-1.0, -2.0, -4.0).magnitude(), 21.0f64.sqrt());
         assert_eq!(Vector::new(0.0, 0.0, 0.0).magnitude(), 0.0);
     }
     #[test]
-    fn test_vector_normalize() {
+    fn vector_normalize() {
         assert_eq!(
             Vector::new(4.0, 0.0, 0.0).normalize(),
             Vector::new(1.0, 0.0, 0.0)
@@ -163,16 +166,32 @@ mod tests {
         assert_eq!(Vector::new(1.0, 2.0, 3.0).normalize().magnitude(), 1.0);
     }
     #[test]
-    fn test_dot_product() {
+    fn dot_product() {
         let a = Vector::new(1.0, 2.0, 3.0);
         let b = Vector::new(2.0, 3.0, 4.0);
         assert_eq!(a.dot_product(b), 20.0);
     }
     #[test]
-    fn test_cross_product() {
+    fn cross_product() {
         let a = Vector::new(1.0, 2.0, 3.0);
         let b = Vector::new(2.0, 3.0, 4.0);
         assert_eq!(a.cross_product(b), Vector::new(-1.0, 2.0, -1.0));
         assert_eq!(b.cross_product(a), Vector::new(1.0, -2.0, 1.0));
+    }
+
+    #[test]
+    fn reflect(){
+        let v = Vector::new(1.0, -1.0, 0.0);
+        let n = Vector::new(0.0, 1.0, 0.0);
+        let r = v.reflect(&n);
+        assert_eq!(r, Vector::new(1.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn reflect_slanted(){
+        let v = Vector::new(0.0, -1.0, 0.0);
+        let n = Vector::new(2.0_f64.sqrt()/2.0, 2.0_f64.sqrt()/2.0, 0.0);
+        let r = v.reflect(&n);
+        assert_eq!(r, Vector::new(1.0, 0.0, 0.0));
     }
 }

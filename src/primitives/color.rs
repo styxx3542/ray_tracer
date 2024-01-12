@@ -31,6 +31,17 @@ impl PartialEq for Color {
             && self.b.approx_eq_low_precision(other.b)
     }
 }
+
+impl std::ops::Mul<f64> for Color{
+    type Output = Color;
+    fn mul(self, rhs: f64) -> Self::Output {
+        Color{
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
+        } 
+    }
+}
 impl std::ops::Add<Color> for Color {
     type Output = Color;
     fn add(self, rhs: Color) -> Self::Output {

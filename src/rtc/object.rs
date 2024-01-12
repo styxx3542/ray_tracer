@@ -3,13 +3,14 @@ use crate::{
     rtc::shape::Shape,
 };
 
-use super::{intersection::Intersections, ray::Ray};
+use super::{intersection::Intersections, ray::Ray, material::Material};
 #[derive(Debug, Clone)]
 pub struct Object {
     shape: Shape,
     transform: Matrix,
     transform_inverse: Matrix,
     transform_inverse_transpose: Matrix,
+    material: Material,
 }
 
 impl<'a> Object {
@@ -19,7 +20,9 @@ impl<'a> Object {
             ..Default::default()
         }
     }
-
+    pub fn material(&self) -> Material{
+        self.material
+    }
     pub fn intersect(&self, ray: &'a Ray) -> Intersections {
         let transformed_ray = ray.transform(&self.transform_inverse);
         assert_eq!(transformed_ray.direction, self.transform_inverse * ray.direction);
@@ -30,6 +33,10 @@ impl<'a> Object {
         self.transform = *transform;
         self.transform_inverse = (*transform).inverse().unwrap();
         self.transform_inverse_transpose = self.transform_inverse.transpose();
+        self
+    }
+    pub fn set_material(mut self, material: &Material) -> Self{
+        self.material = *material;
         self
     }
     pub fn normal_at(&self, world_point: &Point) -> Vector{
@@ -54,6 +61,7 @@ impl Default for Object {
             transform: Matrix::id(),
             transform_inverse : Matrix::id(),
             transform_inverse_transpose : Matrix::id(),
+            material: Material::new(),
         }
     }
 }

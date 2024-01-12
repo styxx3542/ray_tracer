@@ -20,6 +20,8 @@ pub mod rtc {
     pub mod intersection;
     pub mod object;
     pub mod shape;
+    pub mod light;
+    pub mod material;
     pub mod shapes{
         pub mod sphere;
     }

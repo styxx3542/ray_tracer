@@ -34,6 +34,7 @@ impl<'a> Sphere{
 mod tests{
     use super::*;
     use crate::primitives::Matrix;
+    use crate::rtc::material::Material;
     #[test]
     fn normal_at_point_on_x_axis(){
         let n = Sphere::normal_at(&Point::new(1.0, 0.0, 0.0));
@@ -74,6 +75,20 @@ mod tests{
         s = s.set_transform(&transform);
         let n = s.normal_at(&Point::new(0.0, 2.0_f64.sqrt()/2.0, -2.0_f64.sqrt()/2.0));
         assert_eq!(n, Vector::new(0.0, 0.97014, -0.24254));
+    }
+    #[test]
+    fn sphere_has_default_material(){
+        let s = Object::new_sphere();
+        assert_eq!(s.material(), Material::new());
+    }
+
+    #[test]
+    fn sphere_may_be_assigned_material(){
+        let mut s = Object::new_sphere();
+        let m = Material::new();
+        m.with_ambient(1.0);
+        s = s.set_material(&m);
+        assert_eq!(s.material(), m);
     }
 }
 
