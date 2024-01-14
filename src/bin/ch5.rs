@@ -1,6 +1,6 @@
 use ray_tracer::{
    primitives::{
-        Canvas, Color,Point, Vector, Tuple
+        Canvas, Color,Point,  Tuple
     },
     rtc::{
         ray::Ray,

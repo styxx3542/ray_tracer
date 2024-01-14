@@ -1,5 +1,6 @@
-use crate::primitives::{Color, Point, Tuple};
+use crate::primitives::{Color, Point};
 
+#[derive(PartialEq, Debug)]
 pub struct PointLight {
     intensity: Color,
     position: Point,
@@ -23,6 +24,7 @@ impl PointLight {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::primitives::Tuple;
     #[test]
     fn point_light_has_position_and_intensity() {
         let intensity = Color::new(1.0, 1.0, 1.0);

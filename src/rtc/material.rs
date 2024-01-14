@@ -15,6 +15,10 @@ impl Material {
         Default::default()
     }
 
+    pub fn color(&self) -> Color{
+        self.color
+    }
+
     pub fn with_ambient(mut self, ambient: f64) -> Self {
         self.ambient = ambient;
         self

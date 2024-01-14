@@ -71,6 +71,10 @@ impl<'a> Intersections<'a> {
     pub fn iter(&self) -> std::slice::Iter<'_, Intersection<'a>> {
         self.intersections.iter()
     }
+    
+    pub fn into_iter(self) -> std::vec::IntoIter<Intersection<'a>> {
+        self.intersections.into_iter()
+    }
 
     pub fn hit(&self) -> Option<&Intersection<'a>> {
         self.iter().find(|i| i.t() >= 0.0)

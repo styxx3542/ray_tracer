@@ -1,5 +1,5 @@
 use crate::{
-    primitives::{Matrix, Point, Tuple, Vector},
+    primitives::{Matrix, Point,  Vector},
     rtc::shape::Shape,
 };
 
@@ -69,6 +69,7 @@ impl Default for Object {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::primitives::Tuple;
     #[test]
     fn intersection() {
         let ray = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));

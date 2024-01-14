@@ -111,9 +111,10 @@ impl std::ops::Mul<f64> for Vector {
         }
     }
 }
+
+#[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn vector() {
         let v = Vector::new(4.3, -4.2, 3.1);

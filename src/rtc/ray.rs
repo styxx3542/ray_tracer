@@ -1,4 +1,4 @@
-use crate::primitives::{Point, Vector, Tuple, Matrix};
+use crate::primitives::{Point, Vector, Matrix};
 #[derive(Debug, Clone, Copy)]
 pub struct Ray{
     pub origin: Point,
@@ -20,6 +20,7 @@ impl Ray {
 #[cfg(test)]
 mod tests{
     use super::*;
+    use crate::primitives::Tuple;
     #[test]
     fn create_ray(){
         let origin = Point::new(1.0,2.0,3.0);
