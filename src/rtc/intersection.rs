@@ -28,7 +28,7 @@ impl PartialOrd for Intersection<'_> {
 impl<'a> Ord for Intersection<'a> {
     fn cmp(&self, other: &Self) -> Ordering {
         if self.t.is_nan() {
-            return Ordering::Greater;
+            Ordering::Greater
         } else if other.t.is_nan() {
             return Ordering::Less;
         } else if self.t < other.t {
@@ -46,6 +46,12 @@ impl<'a> std::cmp::Eq for Intersection<'a> {}
 #[derive(Debug)]
 pub struct Intersections<'a> {
     intersections: Vec<Intersection<'a>>,
+}
+
+impl<'a> Default for Intersections<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<'a> Intersections<'a> {
