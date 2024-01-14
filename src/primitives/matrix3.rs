@@ -18,6 +18,12 @@ impl IndexMut<(usize, usize)> for Matrix3 {
     }
 }
 
+impl Default for Matrix3 {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Matrix3 {
     pub fn new() -> Matrix3 {
         Matrix3 {

@@ -33,7 +33,7 @@ impl Vector {
     }
     pub fn reflect(&self, normal: &Vector) -> Vector {
         *self - *normal * 2.0 * self.dot_product(*normal)
-    }  
+    }
 }
 impl Tuple for Vector {
     fn x(&self) -> f64 {
@@ -181,7 +181,7 @@ mod tests {
     }
 
     #[test]
-    fn reflect(){
+    fn reflect() {
         let v = Vector::new(1.0, -1.0, 0.0);
         let n = Vector::new(0.0, 1.0, 0.0);
         let r = v.reflect(&n);
@@ -189,9 +189,9 @@ mod tests {
     }
 
     #[test]
-    fn reflect_slanted(){
+    fn reflect_slanted() {
         let v = Vector::new(0.0, -1.0, 0.0);
-        let n = Vector::new(2.0_f64.sqrt()/2.0, 2.0_f64.sqrt()/2.0, 0.0);
+        let n = Vector::new(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
         let r = v.reflect(&n);
         assert_eq!(r, Vector::new(1.0, 0.0, 0.0));
     }

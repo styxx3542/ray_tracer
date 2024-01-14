@@ -21,6 +21,12 @@ impl IndexMut<(usize, usize)> for Matrix {
         &mut self.grid[index.0 * MATRIX_SIZE + index.1]
     }
 }
+impl Default for Matrix {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Matrix {
     pub fn new() -> Matrix {
         Matrix {
@@ -93,7 +99,7 @@ impl Matrix {
     }
     pub fn inverse(&self) -> Option<Matrix> {
         let mut result = Matrix::new();
-        if self.invertible() == false {
+        if !self.invertible() {
             return None;
         }
 

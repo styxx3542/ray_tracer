@@ -51,14 +51,14 @@ impl Canvas {
                 );
                 if row_str.len() + s.len() > 70 {
                     ppm.push_str(row_str.trim());
-                    ppm.push_str("\n");
+                    ppm.push('\n');
                     row_str = String::new();
                 }
                 row_str.push_str(&s);
             }
 
             ppm.push_str(row_str.trim());
-            ppm.push_str("\n");
+            ppm.push('\n');
         }
         ppm
     }
