@@ -1,8 +1,8 @@
 use crate::primitives::{Point, Vector, Matrix};
 #[derive(Debug, Clone, Copy)]
 pub struct Ray{
-    pub origin: Point,
-    pub direction: Vector,
+    origin: Point,
+    direction: Vector,
 }
 impl Ray {
     pub fn new(origin: Point, direction: Vector) -> Ray{
@@ -11,6 +11,14 @@ impl Ray {
 
     pub fn position(&self, time: f64) -> Point{
         self.origin + self.direction*time
+    }
+
+    pub fn origin(&self) -> Point{
+        self.origin
+    }
+
+    pub fn direction(&self) -> Vector{
+        self.direction
     }
 
     pub fn transform(&self, transform: &Matrix) -> Self{

@@ -42,6 +42,12 @@ impl std::ops::Mul<f64> for Color{
         } 
     }
 }
+
+impl core::iter::Sum<Color> for Color{
+    fn sum<I: Iterator<Item = Color>>(iter: I) -> Self {
+        iter.fold(Color::new(0.0, 0.0, 0.0), |acc, x| acc + x)
+    }
+} 
 impl std::ops::Add<Color> for Color {
     type Output = Color;
     fn add(self, rhs: Color) -> Self::Output {

@@ -1,5 +1,7 @@
 use std::{cmp::Ord, cmp::Ordering, cmp::PartialOrd, ops::Index};
-use super::object::Object;
+use crate::primitives::{Point, Vector};
+
+use super::{object::Object, ray::Ray};
 #[derive(Debug, PartialEq, Clone)]
 pub struct Intersection<'a> {
     t: f64,
@@ -99,8 +101,67 @@ impl<'a> Index<usize> for Intersections<'a> {
     }
 }
 
+pub struct IntersectionState<'a>{
+    t: f64,
+    object: &'a Object,
+    eyev: Vector,
+    point: Point, 
+    normalv: Vector,
+    inside: bool,
+}
+
+impl<'a> IntersectionState<'a>{
+    pub fn new(t: f64, object: &'a Object, eyev: Vector, point: Point, normalv: Vector, inside: bool) -> Self{
+        IntersectionState{
+            t,
+            object,
+            eyev,
+            point,
+            normalv,
+            inside,
+        }
+    }
+
+    pub fn prepare_computations(intersection: &'a Intersection, ray: &Ray) -> IntersectionState<'a>{
+        let t = intersection.t();
+        let object = intersection.object();
+        let point = ray.position(t);
+        let eyev = -ray.direction();
+        let normalv = object.normal_at(&point);
+        let (normalv, inside) = {
+            if normalv.dot_product(eyev) < 0.0{
+                (-normalv, true)
+            }else{
+                (normalv, false)
+            }
+        };
+        IntersectionState::new(t, object, eyev, point, normalv,inside)
+    }
+
+    pub fn t(&self) -> f64{
+        self.t
+    }
+
+    pub fn object(&self) -> &'a Object{
+        self.object
+    }
+
+    pub fn eyev(&self) -> Vector{
+        self.eyev
+    }
+
+    pub fn point(&self) -> Point{
+        self.point
+    }
+
+    pub fn normalv(&self) -> Vector{
+        self.normalv
+    }
+}
+
 #[cfg(test)]
 mod tests{
+    use crate::primitives::Tuple;
     use super::*;
     #[test]
     fn hit_when_all_intersections_have_positive_t(){
@@ -140,4 +201,37 @@ mod tests{
         assert_eq!(xs.hit(), Some(&i4));
     }
 
+    #[test]
+    fn precomputing_state_of_intersection(){
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let shape = Object::new_sphere();
+        let i = Intersection::new(4.0, &shape);
+        let comps = IntersectionState::prepare_computations(&i, &r);
+        assert_eq!(comps.t(), i.t());
+        assert_eq!(comps.object(), i.object());
+        assert_eq!(comps.point(), Point::new(0.0, 0.0, -1.0));
+        assert_eq!(comps.eyev(), Vector::new(0.0, 0.0, -1.0));
+        assert_eq!(comps.normalv(), Vector::new(0.0, 0.0, -1.0));
+    }
+
+    #[test]
+    fn hit_when_intersection_occurs_on_outside(){
+        let r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let shape = Object::new_sphere();
+        let i = Intersection::new(4.0, &shape);
+        let comps = IntersectionState::prepare_computations(&i, &r);
+        assert_eq!(comps.inside, false);
+    }
+
+    #[test]
+    fn hit_when_intersection_occurs_on_inside(){
+        let r = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 0.0, 1.0));
+        let shape = Object::new_sphere();
+        let i = Intersection::new(1.0, &shape);
+        let comps = IntersectionState::prepare_computations(&i, &r);
+        assert_eq!(comps.point(), Point::new(0.0, 0.0, 1.0));
+        assert_eq!(comps.eyev(), Vector::new(0.0, 0.0, -1.0));
+        assert_eq!(comps.inside, true);
+        assert_eq!(comps.normalv(), Vector::new(0.0, 0.0, -1.0));
+    }
 }

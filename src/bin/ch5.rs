@@ -30,7 +30,7 @@ fn main(){
             if let Some(hit) = xs.hit(){
                 let point = ray.position(hit.t());
                 let normal = hit.object().normal_at(&point);
-                let eye = -ray.direction;
+                let eye = -ray.direction();
                 let color = hit.object().material().lighting(&light, &point, &eye, &normal);
                 canvas.write_pixel(y, x, color);
             }
