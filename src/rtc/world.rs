@@ -13,11 +13,21 @@ pub struct World {
 }
 
 impl<'a> World {
-    fn new() -> World {
+    pub fn new() -> World {
         World {
             objects: Vec::new(),
             lights: Vec::new(),
         }
+    }
+
+    pub fn with_objects(mut self, objects: Vec<Object>) -> Self{
+        self.objects = objects;
+        self
+    }
+
+    pub fn with_lights(mut self, lights: Vec<PointLight>) -> Self{
+        self.lights = lights;
+        self
     }
 
     pub fn objects(&self) -> &Vec<Object> {

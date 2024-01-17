@@ -23,6 +23,8 @@ pub mod rtc {
     pub mod light;
     pub mod material;
     pub mod world;
+    pub mod transformation;
+    pub mod camera;
     pub mod shapes{
         pub mod sphere;
     }
