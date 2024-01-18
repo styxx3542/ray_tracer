@@ -1,6 +1,6 @@
 use ray_tracer::{
-    primitives::{Canvas, Color, Matrix, Point, Tuple, Vector},
-    rtc::{light::PointLight, material::Material, object::Object, ray::Ray, world::{self, World}, camera::Camera, transformation::view_transform},
+    primitives::{Color, Matrix, Point, Tuple, Vector},
+    rtc::{light::PointLight, material::Material, object::Object,world::World, camera::Camera, transformation::view_transform},
 };
 
 fn main() {
@@ -64,7 +64,7 @@ fn main() {
         floor, left_wall, right_wall, middle, right, left,
     ]).with_lights(vec![light_source]);
 
-    let camera = Camera::new(500, 250, std::f64::consts::FRAC_PI_3, view_transform(
+    let camera = Camera::new(1000, 500, std::f64::consts::FRAC_PI_3, view_transform(
         Point::new(0.0, 1.5, -5.0),
         Point::new(0.0, 1.0, 0.0),
         Vector::new(0.0, 1.0, 0.0),

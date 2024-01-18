@@ -6,6 +6,7 @@ pub struct Camera {
     vsize: usize,
     field_of_view: f64,
     transform: Matrix,
+    transform_inverse: Matrix, // caching the inverse of the transform matrix
     half_width: f64,
     half_height: f64,
     pixel_size: f64,
@@ -25,6 +26,7 @@ impl Camera {
             vsize,
             field_of_view,
             transform,
+            transform_inverse: transform.inverse().unwrap(),
             half_width,
             half_height,
             pixel_size: (half_width * 2.0) / (hsize as f64),
@@ -36,8 +38,8 @@ impl Camera {
         let yoffset = (py as f64 + 0.5) * self.pixel_size;
         let world_x = self.half_width - xoffset;
         let world_y = self.half_height - yoffset;
-        let pixel = self.transform.inverse().unwrap() * Point::new(world_x, world_y, -1.0);
-        let origin = self.transform.inverse().unwrap() * Point::new(0.0, 0.0, 0.0);
+        let pixel = self.transform_inverse * Point::new(world_x, world_y, -1.0);
+        let origin = self.transform_inverse * Point::new(0.0, 0.0, 0.0);
         let direction = (pixel - origin).normalize();
         Ray::new(origin, direction)
     }

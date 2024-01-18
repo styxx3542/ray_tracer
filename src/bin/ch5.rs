@@ -31,7 +31,7 @@ fn main(){
                 let point = ray.position(hit.t());
                 let normal = hit.object().normal_at(&point);
                 let eye = -ray.direction();
-                let color = hit.object().material().lighting(&light, &point, &eye, &normal);
+                let color = hit.object().material().lighting(&light, &point, &eye, &normal, false);
                 canvas.write_pixel(y, x, color);
             }
 

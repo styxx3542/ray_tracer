@@ -1,5 +1,5 @@
 use std::{cmp::Ord, cmp::Ordering, cmp::PartialOrd, ops::Index};
-use crate::primitives::{Point, Vector};
+use crate::{primitives::{Point, Vector}, float::epsilon::EPSILON};
 
 use super::{object::Object, ray::Ray};
 #[derive(Debug, PartialEq, Clone)]
@@ -108,10 +108,11 @@ pub struct IntersectionState<'a>{
     point: Point, 
     normalv: Vector,
     inside: bool,
+    over_point: Point,
 }
 
 impl<'a> IntersectionState<'a>{
-    pub fn new(t: f64, object: &'a Object, eyev: Vector, point: Point, normalv: Vector, inside: bool) -> Self{
+    pub fn new(t: f64, object: &'a Object, eyev: Vector, point: Point, normalv: Vector, inside: bool, over_point: Point) -> Self{
         IntersectionState{
             t,
             object,
@@ -119,6 +120,7 @@ impl<'a> IntersectionState<'a>{
             point,
             normalv,
             inside,
+            over_point,
         }
     }
 
@@ -135,7 +137,8 @@ impl<'a> IntersectionState<'a>{
                 (normalv, false)
             }
         };
-        IntersectionState::new(t, object, eyev, point, normalv,inside)
+        let over_point = point + normalv * EPSILON;
+        IntersectionState::new(t, object, eyev, point, normalv,inside, over_point)
     }
 
     pub fn t(&self) -> f64{
@@ -156,6 +159,10 @@ impl<'a> IntersectionState<'a>{
 
     pub fn normalv(&self) -> Vector{
         self.normalv
+    }
+
+    pub fn over_point(&self) -> Point{
+        self.over_point
     }
 }
 

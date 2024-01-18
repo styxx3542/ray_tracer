@@ -25,7 +25,6 @@ impl<'a> Object {
     }
     pub fn intersect(&self, ray: &'a Ray) -> Intersections {
         let transformed_ray = ray.transform(&self.transform_inverse);
-        assert_eq!(transformed_ray.direction(), self.transform_inverse * ray.direction());
         self.shape.intersect(&transformed_ray, self)
     }
 
