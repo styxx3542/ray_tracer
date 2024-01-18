@@ -1,6 +1,5 @@
 /target
 /.vscode/
 /Cargo.lock
-.DS_Store
+*.DS_Store
 /samples
-
