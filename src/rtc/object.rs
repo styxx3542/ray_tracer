@@ -1,9 +1,9 @@
 use crate::{
-    primitives::{Matrix, Point,  Vector},
+    primitives::{Matrix, Point, Vector},
     rtc::shape::Shape,
 };
 
-use super::{intersection::Intersections, ray::Ray, material::Material};
+use super::{intersection::Intersections, material::Material, ray::Ray};
 #[derive(Debug, Clone)]
 pub struct Object {
     shape: Shape,
@@ -20,7 +20,14 @@ impl<'a> Object {
             ..Default::default()
         }
     }
-    pub fn material(&self) -> Material{
+
+    pub fn new_plane() -> Self {
+        Object {
+            shape: Shape::Plane,
+            ..Default::default()
+        } 
+    }
+    pub fn material(&self) -> Material {
         self.material
     }
     pub fn intersect(&self, ray: &'a Ray) -> Intersections {
@@ -28,22 +35,21 @@ impl<'a> Object {
         self.shape.intersect(&transformed_ray, self)
     }
 
-    pub fn set_transform(mut self, transform:&Matrix) -> Self {
+    pub fn set_transform(mut self, transform: &Matrix) -> Self {
         self.transform = *transform;
         self.transform_inverse = (*transform).inverse().unwrap();
         self.transform_inverse_transpose = self.transform_inverse.transpose();
         self
     }
-    pub fn set_material(mut self, material: &Material) -> Self{
+    pub fn set_material(mut self, material: &Material) -> Self {
         self.material = *material;
         self
     }
-    pub fn normal_at(&self, world_point: &Point) -> Vector{
+    pub fn normal_at(&self, world_point: &Point) -> Vector {
         let object_point = self.transform_inverse * *world_point;
         let object_normal = self.shape.normal_at(&object_point);
         let world_normal = self.transform_inverse_transpose * object_normal;
         world_normal.normalize()
-
     }
 }
 
@@ -58,8 +64,8 @@ impl Default for Object {
         Object {
             shape: Shape::Sphere,
             transform: Matrix::id(),
-            transform_inverse : Matrix::id(),
-            transform_inverse_transpose : Matrix::id(),
+            transform_inverse: Matrix::id(),
+            transform_inverse_transpose: Matrix::id(),
             material: Material::new(),
         }
     }

@@ -1,11 +1,11 @@
 #![allow(dead_code)]
 pub mod primitives {
+    pub use canvas::Canvas;
+    pub use color::Color;
     pub use matrix::Matrix;
     pub use point::Point;
     pub use tuple::Tuple;
     pub use vector::Vector;
-    pub use canvas::Canvas;
-    pub use color::Color;
     pub mod canvas;
     pub mod color;
     mod matrix;
@@ -16,16 +16,17 @@ pub mod primitives {
     mod vector;
 }
 pub mod rtc {
-    pub mod ray;
+    pub mod camera;
     pub mod intersection;
-    pub mod object;
-    pub mod shape;
     pub mod light;
     pub mod material;
-    pub mod world;
+    pub mod object;
+    pub mod ray;
+    pub mod shape;
     pub mod transformation;
-    pub mod camera;
-    pub mod shapes{
+    pub mod world;
+    pub mod shapes {
+        pub mod plane;
         pub mod sphere;
     }
 }
