@@ -25,6 +25,7 @@ pub mod rtc {
     pub mod shape;
     pub mod transformation;
     pub mod world;
+    pub mod pattern;
     pub mod shapes {
         pub mod plane;
         pub mod sphere;
