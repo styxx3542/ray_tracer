@@ -55,6 +55,12 @@ impl Camera {
         }
         image
     }
+
+    pub fn set_transform(mut self, transform: Matrix) -> Self{
+        self.transform = transform;
+        self.transform_inverse = transform.inverse().unwrap();
+        self
+    }
 }
 
 #[cfg(test)]
@@ -102,7 +108,7 @@ mod tests {
     #[test]
     fn ray_when_camera_is_transformed() {
         let mut c = Camera::new(201, 101, std::f64::consts::PI / 2.0, Matrix::id());
-        c.transform = Matrix::id().rotate_y(std::f64::consts::PI / 4.0) * Matrix::id().translate(0.0, -2.0, 5.0);
+        c = c.set_transform(Matrix::id().translate(0.0, -2.0, 5.0).rotate_y(std::f64::consts::PI / 4.0));
         let r = c.ray_for_pixel(100, 50);
         assert_eq!(r.origin(), Point::new(0.0, 2.0, -5.0));
         assert_eq!(r.direction(), Vector::new(2.0_f64.sqrt() / 2.0, 0.0, -2.0_f64.sqrt() / 2.0));
@@ -115,7 +121,7 @@ mod tests {
         let from = Point::new(0.0, 0.0, -5.0);
         let to = Point::new(0.0, 0.0, 0.0);
         let up = Vector::new(0.0, 1.0, 0.0);
-        c.transform = view_transform(from, to, up);
+        c = c.set_transform(view_transform(from, to, up));
         let image = c.render(&w);
         assert_eq!(image.pixel_at(5, 5), Color::new(0.38066, 0.47583, 0.2855));
     }

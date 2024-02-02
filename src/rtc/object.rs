@@ -21,6 +21,10 @@ impl<'a> Object {
         }
     }
 
+    pub fn to_object_space(&self, world_point: &Point) -> Point{
+        self.transform_inverse * *world_point
+    }
+
     pub fn new_plane() -> Self {
         Object {
             shape: Shape::Plane,
@@ -46,9 +50,9 @@ impl<'a> Object {
         self
     }
     pub fn normal_at(&self, world_point: &Point) -> Vector {
-        let object_point = self.transform_inverse * *world_point;
+        let object_point = self.to_object_space(world_point);
         let object_normal = self.shape.normal_at(&object_point);
-        let world_normal = self.transform_inverse_transpose * object_normal;
+        let world_normal = self.transform_inverse_transpose * object_normal; //convert normal back to world space
         world_normal.normalize()
     }
 }

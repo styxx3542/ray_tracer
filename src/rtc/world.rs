@@ -45,12 +45,14 @@ impl<'a> World {
     }
 
     pub fn shade_hit(&self, state: &IntersectionState) -> Color {
+        let object_point = state.object().to_object_space(&state.point());
         let shadowed = self.is_shadowed(&state.over_point());
         self.lights
             .iter()
             .map(|light| {
                 state.object().material().lighting(
                     &light,
+                    &object_point,
                     &state.point(),
                     &state.eyev(),
                     &state.normalv(),
