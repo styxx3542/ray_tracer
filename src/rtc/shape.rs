@@ -4,7 +4,7 @@ use crate::{
 };
 
 use super::{object::Object, shapes::plane::Plane};
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Shape {
     Sphere,
     Plane,

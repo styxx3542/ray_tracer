@@ -34,6 +34,10 @@ impl<'a> Object {
     pub fn material(&self) -> Material {
         self.material
     }
+
+    pub fn shape(&self) -> Shape {
+        self.shape
+    }
     pub fn intersect(&self, ray: &'a Ray) -> Intersections {
         let transformed_ray = ray.transform(&self.transform_inverse);
         self.shape.intersect(&transformed_ray, self)

@@ -63,7 +63,7 @@ impl Material {
         in_shadow: bool,
     ) -> Color {
         let color = match self.pattern {
-            Some(pattern) => pattern.stripe_at(object_point),
+            Some(pattern) => pattern.pattern_at(object_point),
             None => self.color,
         };
         let effective_color = color * light.intensity();

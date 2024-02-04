@@ -36,10 +36,13 @@ impl Camera {
     fn ray_for_pixel(&self, px: usize, py: usize) -> Ray {
         let xoffset = (px as f64 + 0.5) * self.pixel_size;
         let yoffset = (py as f64 + 0.5) * self.pixel_size;
+
         let world_x = self.half_width - xoffset;
         let world_y = self.half_height - yoffset;
+
         let pixel = self.transform_inverse * Point::new(world_x, world_y, -1.0);
         let origin = self.transform_inverse * Point::new(0.0, 0.0, 0.0);
+
         let direction = (pixel - origin).normalize();
         Ray::new(origin, direction)
     }

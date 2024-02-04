@@ -94,16 +94,12 @@ impl Matrix {
         result
     }
 
-    pub fn invertible(&self) -> bool {
-        self.determinant() != 0.0
-    }
     pub fn inverse(&self) -> Option<Matrix> {
         let mut result = Matrix::new();
-        if !self.invertible() {
+        let det = self.determinant();
+        if det == 0.0 {
             return None;
         }
-
-        let det = self.determinant();
         for i in 0..MATRIX_SIZE {
             for j in 0..MATRIX_SIZE {
                 let c = self.cofactor(i, j);
@@ -375,6 +371,6 @@ mod tests {
             .rotate_x(std::f64::consts::PI / 2.0)
             .scale(5.0, 5.0, 5.0)
             .translate(10.0, 5.0, 7.0);
-        assert_eq!(chained* p, t * p);  
+        assert_eq!(chained * p, t * p);
     }
 }
