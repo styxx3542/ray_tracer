@@ -51,8 +51,8 @@ impl Camera {
         let mut image = Canvas::new(self.hsize, self.vsize);
         for y in 0..self.vsize {
             for x in 0..self.hsize {
-                let ray = self.ray_for_pixel(x, y);
-                let color = world.color_at(&ray);
+                let mut ray = self.ray_for_pixel(x, y);
+                let color = world.color_at(&mut ray);
                 image.write_pixel(x, y, color);
             }
         }

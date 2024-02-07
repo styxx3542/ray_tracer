@@ -9,6 +9,9 @@ pub struct Material {
     diffuse: f64,
     specular: f64,
     shininess: f64,
+    reflective: f64,
+    transparency: f64,
+    refractive_index: f64,
 }
 
 impl Material {
@@ -22,6 +25,28 @@ impl Material {
 
     pub fn pattern(&self) -> Option<Pattern> {
         Some(self.pattern)?
+    }
+
+    pub fn reflective(&self) -> f64 {
+        self.reflective
+    }
+
+    pub fn transparency(&self) -> f64 {
+        self.transparency
+    }
+
+    pub fn refractive_index(&self) -> f64 {
+        self.refractive_index
+    }
+
+    pub fn with_transparency(mut self, transparency: f64) -> Self {
+        self.transparency = transparency;
+        self
+    }
+
+    pub fn with_refractive_index(mut self, refractive_index: f64) -> Self {
+        self.refractive_index = refractive_index;
+        self
     }
 
     pub fn with_ambient(mut self, ambient: f64) -> Self {
@@ -49,6 +74,11 @@ impl Material {
     }
     pub fn with_pattern(mut self, pattern: Pattern) -> Self {
         self.pattern = Some(pattern);
+        self
+    }
+
+    pub fn with_reflective(mut self, reflective: f64) -> Self{
+        self.reflective = reflective;
         self
     }
 
@@ -97,6 +127,9 @@ impl Default for Material {
             specular: 0.9,
             shininess: 200.0,
             pattern: None,
+            reflective: 0.0,
+            transparency: 0.0,
+            refractive_index: 1.0,
         }
     }
 }

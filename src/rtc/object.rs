@@ -4,7 +4,7 @@ use crate::{
 };
 
 use super::{intersection::Intersections, material::Material, ray::Ray};
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Object {
     shape: Shape,
     transform: Matrix,
@@ -19,6 +19,13 @@ impl<'a> Object {
             shape: Shape::Sphere,
             ..Default::default()
         }
+    }
+
+    pub fn new_glass_sphere() -> Self{
+        Object {
+            shape: Shape::Sphere,
+            ..Default::default()
+        }.set_material(&Material::new().with_transparency(1.0).with_refractive_index(1.5))
     }
 
     pub fn to_object_space(&self, world_point: &Point) -> Point{
@@ -61,11 +68,6 @@ impl<'a> Object {
     }
 }
 
-impl PartialEq for Object {
-    fn eq(&self, other: &Self) -> bool {
-        self.shape == other.shape
-    }
-}
 
 impl Default for Object {
     fn default() -> Self {

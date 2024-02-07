@@ -11,7 +11,7 @@ fn main() {
         &Material::new()
             .with_pattern(
                 Pattern::new_checkers(Color::new(1.0, 1.0, 1.0), Color::new(0.0, 0.0, 0.0))
-            ),
+            ).with_reflective(0.3),
     );
     let middle = Object::new_sphere()
         .set_transform(

@@ -51,6 +51,7 @@ impl Pattern {
             PatternType::Gradient(p) => p.pattern_at(&pattern_point),
             PatternType::Ring(p) => p.pattern_at(&pattern_point),
             PatternType::Checkers(p) => p.pattern_at(&pattern_point),
+            PatternType::RadialGradient(p) => p.pattern_at(&pattern_point),
         }
     }
 
@@ -86,6 +87,7 @@ enum PatternType {
     Ring(RingPattern),
     Checkers(CheckersPattern),
     Test(TestPattern),
+    RadialGradient(RadialGradientPattern),
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -145,6 +147,22 @@ impl PatternAt for CheckersPattern {
             return self.a;
         }
         self.b
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+struct RadialGradientPattern{
+    a: Color,
+    b: Color,
+}
+
+
+impl PatternAt for RadialGradientPattern {
+    fn pattern_at(&self, point: &Point) -> Color {
+        let distance = self.b - self.a;
+        let fraction = point.x().powi(2) + point.z().powi(2);
+        let fraction = fraction.sqrt() - point.y().floor();
+        self.a + distance * fraction
     }
 }
 #[derive(Debug, Copy, Clone, PartialEq)]
