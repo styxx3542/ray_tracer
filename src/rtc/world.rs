@@ -75,6 +75,11 @@ impl<'a> World {
                 )
             })
             .sum();
+        let material = state.object().material();
+        if material.reflective() > 0.0 && material.transparency() > 0.0 {
+            let reflectance = state.schlick();
+            return surface_color + reflected * reflectance + refracted * (1.0 - reflectance);
+        }
         surface_color + reflected + refracted
     }
 
@@ -158,8 +163,8 @@ impl Default for World {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     use crate::{primitives::Vector, rtc::pattern::Pattern};
+    use pretty_assertions::assert_eq;
     #[test]
     fn test_world() {
         let w = World::new();
@@ -413,7 +418,6 @@ mod tests {
         let color = w.refracted_color(&state, 5);
         assert_eq!(color, Color::new(0.0, 0.998888, 0.04725))
     }
-
     #[test]
     fn shade_hit_transparent_material() {
         let mut w = World::default();
@@ -442,5 +446,36 @@ mod tests {
         let state = IntersectionState::prepare_computations(&xs[0], &mut r);
         let color = w.shade_hit(&state, 5);
         assert_eq!(color, Color::new(0.93642, 0.68642, 0.68642));
+    }
+
+    #[test]
+    fn shade_hit_reflective_transparent_material() {
+        let mut w = World::default();
+        let floor = Object::new_plane()
+            .set_transform(&Matrix::id().translate(0.0, -1.0, 0.0))
+            .set_material(
+                &Material::new()
+                    .with_reflective(0.5)
+                    .with_transparency(0.5)
+                    .with_refractive_index(1.5),
+            );
+        let ball = Object::new_sphere()
+            .set_transform(&Matrix::id().translate(0.0, -3.5, -0.5))
+            .set_material(
+                &Material::new()
+                    .with_color(Color::new(1.0, 0.0, 0.0))
+                    .with_ambient(0.5),
+            );
+        w.add_object(floor.clone());
+        w.add_object(ball.clone());
+        let mut r = Ray::new(
+            Point::new(0.0, 0.0, -3.0),
+            Vector::new(0.0, -2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0),
+        );
+        let xs = Intersections::new()
+            .with_intersections(vec![Intersection::new(2.0_f64.sqrt(), &floor)]);
+        let state = IntersectionState::prepare_computations(&xs[0], &mut r);
+        let color = w.shade_hit(&state, 5);
+        assert_eq!(color, Color::new(0.93391, 0.69643, 0.69243));
     }
 }

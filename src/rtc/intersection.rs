@@ -234,6 +234,22 @@ impl<'a> IntersectionState<'a> {
         )
     }
 
+    pub fn schlick(&self) -> f64 {
+        let mut cos = self.eyev().dot_product(&self.normalv());
+        if self.n1 > self.n2{
+            let n = self.n1 / self.n2;
+            let sin2_t = n*n * (1.0 - cos*cos);
+            if sin2_t > 1.0 {
+                return 1.0;
+            }
+            let cos_t = (1.0 - sin2_t).sqrt();
+            cos = cos_t;
+        }
+        let r0 = ((self.n1 - self.n2) / (self.n1 + self.n2)).powi(2);
+        r0 + (1.0 - r0) * (1.0 - cos).powi(5)
+
+    }
+
     pub fn t(&self) -> f64 {
         self.t
     }
@@ -274,7 +290,7 @@ impl<'a> IntersectionState<'a> {
         self.under_point
     }
 
-    pub fn is_entering(&self) -> bool{
+    pub fn is_entering(&self) -> bool {
         self.is_entering
     }
 }
@@ -422,5 +438,45 @@ mod tests {
         let comps = IntersectionState::prepare_computations(&xs[0], &mut r);
         assert!(comps.under_point.z() > EPSILON / 2.0);
         assert!(comps.point.z() < comps.under_point.z());
+    }
+
+    #[test]
+    fn schlick_under_total_internal_reflection() {
+        let shape = Object::new_glass_sphere();
+        // ray is coming from inside the glass sphere
+        let mut r = Ray::new(Point::new(0.0, 0.0, 2.0_f64.sqrt() / 2.0), Vector::new(0.0, 1.0, 0.0)).with_indices(vec![1.0, 1.5]);
+        let xs = Intersections::new().with_intersections(vec![
+            Intersection::new(-2.0_f64.sqrt() / 2.0, &shape),
+            Intersection::new(2.0_f64.sqrt() / 2.0, &shape),
+        ]);
+        let comps = IntersectionState::prepare_computations(&xs[1], &mut r);
+        let reflectance = comps.schlick();
+        assert!(reflectance.approx_eq(1.0));
+    } 
+
+    #[test]
+    fn schlick_with_perpendicular_viewing_angle() {
+        let shape = Object::new_glass_sphere();
+        let mut r = Ray::new(Point::new(0.0, 0.0, 0.0), Vector::new(0.0, 1.0, 0.0));
+        let xs = Intersections::new().with_intersections(vec![
+            Intersection::new(-1.0, &shape),
+            Intersection::new(1.0, &shape),
+        ]);
+        let comps = IntersectionState::prepare_computations(&xs[1], &mut r);
+        let reflectance = comps.schlick();
+        assert!(reflectance.approx_eq(0.04));
+    }
+
+    #[test]
+    fn schlick_with_small_angle_and_n2_greater_than_n1() {
+        let shape = Object::new_glass_sphere();
+        let mut r = Ray::new(Point::new(0.0, 0.99, -2.0), Vector::new(0.0, 0.0, 1.0));
+        let xs = Intersections::new().with_intersections(vec![
+            Intersection::new(1.8589, &shape),
+        ]);
+        let comps = IntersectionState::prepare_computations(&xs[0], &mut r);
+        let reflectance = comps.schlick();
+        println!("Reflectance: {}", reflectance);
+        assert!(reflectance.approx_eq_low_precision(0.48873));
     }
 }
