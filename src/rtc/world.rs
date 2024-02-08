@@ -1,3 +1,4 @@
+use crate::float::ApproxEq;
 use crate::primitives::{Color, Matrix, Point, Tuple};
 use crate::rtc::{
     intersection::{Intersection, IntersectionState, Intersections},
@@ -18,7 +19,7 @@ impl<'a> World {
         World {
             objects: Vec::new(),
             lights: Vec::new(),
-            max_recursive_depth: 6,
+            max_recursive_depth: 5,
         }
     }
 
@@ -59,6 +60,7 @@ impl<'a> World {
         let object_point = state.object().to_object_space(&state.over_point());
         let shadowed = self.is_shadowed(&state.over_point());
         let reflected = self.reflected_color(state, remaining_recursions);
+        let refracted = self.refracted_color(state, remaining_recursions);
         let surface_color: Color = self
             .lights
             .iter()
@@ -73,7 +75,7 @@ impl<'a> World {
                 )
             })
             .sum();
-        surface_color + reflected
+        surface_color + reflected + refracted
     }
 
     pub fn is_shadowed(&self, point: &Point) -> bool {
@@ -111,6 +113,26 @@ impl<'a> World {
         let color = self.color_at_impl(&mut reflect_ray, remaining_recursions - 1);
         color * comps.object().material().reflective()
     }
+
+    pub fn refracted_color(&self, comps: &IntersectionState, remaining_recursions: u8) -> Color {
+        if comps.object().material().transparency().approx_eq(0.0) || remaining_recursions == 0 {
+            return Color::black();
+        }
+        let n_ratio = comps.n1() / comps.n2();
+        let cos_i = comps.eyev().dot_product(&comps.normalv());
+        let sin2_t = n_ratio.powi(2) * (1.0 - cos_i.powi(2));
+        if sin2_t > 1.0 {
+            return Color::black();
+        }
+
+        let cos_t = (1.0 - sin2_t).sqrt();
+        let direction = comps.normalv() * (n_ratio * cos_i - cos_t) - comps.eyev() * n_ratio;
+        let outside_index = comps.n2();
+        let mut refract_ray =
+            Ray::new(comps.under_point(), direction).with_indices(vec![outside_index]);
+        self.color_at_impl(&mut refract_ray, remaining_recursions - 1)
+            * comps.object().material().transparency()
+    }
 }
 
 impl Default for World {
@@ -137,7 +159,7 @@ impl Default for World {
 mod tests {
     use super::*;
 
-    use crate::primitives::Vector;
+    use crate::{primitives::Vector, rtc::pattern::Pattern};
     #[test]
     fn test_world() {
         let w = World::new();
@@ -302,5 +324,123 @@ mod tests {
         let state = IntersectionState::prepare_computations(&i, &mut r);
         let color = w.reflected_color(&state, 0);
         assert_eq!(color, Color::new(0.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn refracted_color_opaque_surface() {
+        let w = World::default();
+        let shape = &w.objects[0];
+        let mut r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let xs = Intersections::new().with_intersections(vec![
+            Intersection::new(4.0, shape),
+            Intersection::new(6.0, shape),
+        ]);
+        let state = IntersectionState::prepare_computations(&xs[0], &mut r);
+        let color = w.refracted_color(&state, 5);
+        assert_eq!(color, Color::new(0.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn refraction_at_max_recursive_depth() {
+        let w = World::default();
+        let shape = &w.objects[0];
+        shape.clone().set_material(
+            &Material::new()
+                .with_transparency(1.0)
+                .with_refractive_index(1.5),
+        );
+        let mut r = Ray::new(Point::new(0.0, 0.0, 0.1), Vector::new(0.0, 1.0, 0.0));
+        let xs = Intersections::new().with_intersections(vec![
+            Intersection::new(-0.9899, shape),
+            Intersection::new(-0.4899, shape),
+            Intersection::new(0.4899, shape),
+            Intersection::new(0.9899, shape),
+        ]);
+        let state = IntersectionState::prepare_computations(&xs[2], &mut r);
+        let color = w.refracted_color(&state, 0);
+        assert_eq!(color, Color::new(0.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn refracted_color_total_internal_refraction() {
+        let w = World::default();
+        let shape = &w.objects[0];
+        shape.clone().set_material(
+            &Material::new()
+                .with_transparency(1.0)
+                .with_refractive_index(1.5),
+        );
+        let mut r = Ray::new(
+            Point::new(0.0, 0.0, 2.0_f64.sqrt() / 2.0),
+            Vector::new(0.0, 1.0, 0.0),
+        );
+        let xs = Intersections::new().with_intersections(vec![
+            Intersection::new(-2.0_f64.sqrt() / 2.0, shape),
+            Intersection::new(2.0_f64.sqrt() / 2.0, shape),
+        ]);
+        let state = IntersectionState::prepare_computations(&xs[1], &mut r);
+        let color = w.refracted_color(&state, 5);
+        assert_eq!(color, Color::new(0.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn refracted_color() {
+        let w = World::default();
+        let a = &w.objects[0];
+        let a = a.clone().set_material(
+            &Material::new()
+                .with_ambient(1.0)
+                .with_pattern(Pattern::new_test()),
+        );
+        let b = &w.objects[1];
+        let b = b.clone().set_material(
+            &Material::new()
+                .with_transparency(1.0)
+                .with_refractive_index(1.5),
+        );
+        let mut r = Ray::new(Point::new(0.0, 0.0, 0.1), Vector::new(0.0, 1.0, 0.0))
+            .with_indices(vec![1.0, 1.5]);
+        let xs = Intersections::new()
+            .with_intersections(vec![
+                Intersection::new(-0.9899, &a),
+                Intersection::new(-0.4899, &b),
+                Intersection::new(0.4899, &b),
+                Intersection::new(0.9899, &a),
+            ])
+            .sort();
+        let w = World::default().with_objects(vec![a.clone(), b.clone()]);
+        let state = IntersectionState::prepare_computations(&xs[2], &mut r);
+        let color = w.refracted_color(&state, 5);
+        assert_eq!(color, Color::new(0.0, 0.998888, 0.04725))
+    }
+
+    #[test]
+    fn shade_hit_transparent_material() {
+        let mut w = World::default();
+        let floor = Object::new_plane()
+            .set_transform(&Matrix::id().translate(0.0, -1.0, 0.0))
+            .set_material(
+                &Material::new()
+                    .with_transparency(0.5)
+                    .with_refractive_index(1.5),
+            );
+        let ball = Object::new_sphere()
+            .set_transform(&Matrix::id().translate(0.0, -3.5, -0.5))
+            .set_material(
+                &Material::new()
+                    .with_color(Color::new(1.0, 0.0, 0.0))
+                    .with_ambient(0.5),
+            );
+        w.add_object(floor.clone());
+        w.add_object(ball.clone());
+        let mut r = Ray::new(
+            Point::new(0.0, 0.0, -3.0),
+            Vector::new(0.0, -2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0),
+        );
+        let xs = Intersections::new()
+            .with_intersections(vec![Intersection::new(2.0_f64.sqrt(), &floor)]);
+        let state = IntersectionState::prepare_computations(&xs[0], &mut r);
+        let color = w.shade_hit(&state, 5);
+        assert_eq!(color, Color::new(0.93642, 0.68642, 0.68642));
     }
 }

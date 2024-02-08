@@ -20,7 +20,7 @@ impl Vector {
         }
     }
 
-    pub fn dot_product(&self, other: Vector) -> f64 {
+    pub fn dot_product(&self, other: &Vector) -> f64 {
         self.x * other.x() + self.y * other.y() + self.z * other.z()
     }
 
@@ -32,7 +32,7 @@ impl Vector {
         }
     }
     pub fn reflect(&self, normal: &Vector) -> Vector {
-        *self - *normal * 2.0 * self.dot_product(*normal)
+        *self - *normal * 2.0 * self.dot_product(normal)
     }
 }
 impl Tuple for Vector {
@@ -170,7 +170,7 @@ mod tests {
     fn dot_product() {
         let a = Vector::new(1.0, 2.0, 3.0);
         let b = Vector::new(2.0, 3.0, 4.0);
-        assert_eq!(a.dot_product(b), 20.0);
+        assert_eq!(a.dot_product(&b), 20.0);
     }
     #[test]
     fn cross_product() {

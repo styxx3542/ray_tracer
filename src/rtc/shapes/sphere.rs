@@ -11,8 +11,8 @@ impl<'a> Sphere{
     pub fn intersect(ray: &Ray, object: &'a Object) -> Intersections<'a>{
         let mut intersections = Intersections::new();
         let sphere_to_ray = Point::zero() - ray.origin();
-        let tc = sphere_to_ray.dot_product(ray.direction().normalize());
-        let l = sphere_to_ray.dot_product(sphere_to_ray);
+        let tc = sphere_to_ray.dot_product(&ray.direction().normalize());
+        let l = sphere_to_ray.dot_product(&sphere_to_ray);
         let d2 = l - tc * tc;
         if d2 > 1.0 {
             return Intersections::new(); 

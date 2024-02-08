@@ -1,10 +1,10 @@
 use crate::{
     float::{epsilon::EPSILON, ApproxEq},
     primitives::{Point, Vector},
+    rtc::{object::Object, ray::Ray},
 };
 use std::{cmp::Ord, cmp::Ordering, cmp::PartialOrd, ops::Index};
 
-use super::{object::Object, ray::Ray};
 #[derive(Debug, PartialEq, Clone)]
 pub struct Intersection<'a> {
     t: f64,
@@ -115,6 +115,8 @@ pub struct IntersectionState<'a> {
     reflectv: Vector,
     n1: f64,
     n2: f64,
+    under_point: Point,
+    is_entering: bool,
 }
 #[derive(Debug)]
 struct RefractionState {
@@ -124,15 +126,21 @@ struct RefractionState {
 }
 
 fn calculate_refraction_state(ray: &Ray, intersection: &Intersection) -> RefractionState {
+    // Different algorithm for calculating refraction index
+    // Store the refraction indices encountered by the ray so far inside the ray in a stack
+    // When a ray intersects an object, it checks if it is entering or exiting the objects
+    // If it is entering, it pushes the object's refraction index to the stack
+    // If it is exiting, it pops the object's refraction index from the stack
+
     let current_index = intersection.object().material().refractive_index();
     let objects = ray.get_indices();
     let is_entering = (*objects)
         .iter()
         .find(|o| (*o).approx_eq(current_index))
         .is_none();
-    let previous_refraction_index: f64  = *objects
+    let previous_refraction_index: f64 = *objects
         .last()
-        .unwrap_or(&1.0);
+        .expect("Never should be empty - outside world is always 1.0");
     if is_entering {
         return RefractionState {
             n1: previous_refraction_index,
@@ -140,12 +148,15 @@ fn calculate_refraction_state(ray: &Ray, intersection: &Intersection) -> Refract
             is_entering: true,
         };
     }
-    let prev = objects.iter().rev().find(|o| !(*o).approx_eq(current_index));
-    let outer_refraction_index = prev.unwrap_or(&1.0);
+    let prev = objects
+        .iter()
+        .rev()
+        .find(|o| !(*o).approx_eq(current_index));
+    let new_refraction_index = prev.unwrap_or(&previous_refraction_index);
 
     RefractionState {
         n1: previous_refraction_index,
-        n2: *outer_refraction_index,
+        n2: *new_refraction_index,
         is_entering: false,
     }
 }
@@ -159,9 +170,11 @@ impl<'a> IntersectionState<'a> {
         normalv: Vector,
         inside: bool,
         over_point: Point,
+        under_point: Point,
         reflectv: Vector,
         n1: f64,
         n2: f64,
+        is_entering: bool,
     ) -> Self {
         IntersectionState {
             t,
@@ -174,6 +187,8 @@ impl<'a> IntersectionState<'a> {
             reflectv,
             n1,
             n2,
+            under_point,
+            is_entering,
         }
     }
 
@@ -193,16 +208,29 @@ impl<'a> IntersectionState<'a> {
         let eyev = -ray.direction();
         let normalv = object.normal_at(&point);
         let (normalv, inside) = {
-            if normalv.dot_product(eyev) < 0.0 {
+            if normalv.dot_product(&eyev) < 0.0 {
                 (-normalv, true)
             } else {
                 (normalv, false)
             }
         };
         let over_point = point + normalv * EPSILON;
+        let under_point = point - normalv * EPSILON;
         let reflectv = ray.direction().reflect(&normalv);
+
         IntersectionState::new(
-            t, object, eyev, point, normalv, inside, over_point, reflectv, state.n1, state.n2,
+            t,
+            object,
+            eyev,
+            point,
+            normalv,
+            inside,
+            over_point,
+            under_point,
+            reflectv,
+            state.n1,
+            state.n2,
+            state.is_entering,
         )
     }
 
@@ -232,6 +260,22 @@ impl<'a> IntersectionState<'a> {
 
     pub fn reflectv(&self) -> Vector {
         self.reflectv
+    }
+
+    pub fn n1(&self) -> f64 {
+        self.n1
+    }
+
+    pub fn n2(&self) -> f64 {
+        self.n2
+    }
+
+    pub fn under_point(&self) -> Point {
+        self.under_point
+    }
+
+    pub fn is_entering(&self) -> bool{
+        self.is_entering
     }
 }
 
@@ -363,9 +407,20 @@ mod tests {
         ];
         for (i, (n1, n2)) in indices.iter().enumerate() {
             let comps = IntersectionState::prepare_computations(&xs[i], &mut r);
-            println!("{}, {} {}, {}",  n1, n2, comps.n1, comps.n2);
             assert!(comps.n1.approx_eq(*n1));
             assert!(comps.n2.approx_eq(*n2));
         }
+    }
+
+    #[test]
+    fn under_point_offset_below_surface() {
+        let mut r = Ray::new(Point::new(0.0, 0.0, -5.0), Vector::new(0.0, 0.0, 1.0));
+        let shape =
+            Object::new_glass_sphere().set_transform(&Matrix::id().translate(0.0, 0.0, 1.0));
+        let i = Intersection::new(5.0, &shape);
+        let xs = Intersections::new().with_intersections(vec![i]);
+        let comps = IntersectionState::prepare_computations(&xs[0], &mut r);
+        assert!(comps.under_point.z() > EPSILON / 2.0);
+        assert!(comps.point.z() < comps.under_point.z());
     }
 }

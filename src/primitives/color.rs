@@ -22,6 +22,14 @@ impl Color {
     pub fn blue(&self) -> f64 {
         self.b
     }
+
+    pub fn black() -> Self {
+        Color::new(0.0, 0.0, 0.0)
+    }
+
+    pub fn white() -> Self {
+        Color::new(1.0, 1.0, 1.0)
+    }
 }
 
 impl PartialEq for Color {

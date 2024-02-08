@@ -99,13 +99,13 @@ impl Material {
         let effective_color = color * light.intensity();
         let lightv = (light.position() - *world_point).normalize();
         let ambient = effective_color * self.ambient;
-        let light_dot_normal = lightv.dot_product(*normalv);
+        let light_dot_normal = lightv.dot_product(normalv);
         let (diffuse, specular) = if light_dot_normal < 0.0 || in_shadow {
             (Color::new(0.0, 0.0, 0.0), Color::new(0.0, 0.0, 0.0))
         } else {
             let diffuse = effective_color * self.diffuse * light_dot_normal;
             let reflectv = (-lightv).reflect(normalv);
-            let reflect_dot_eye = reflectv.dot_product(*eyev);
+            let reflect_dot_eye = reflectv.dot_product(eyev);
             let specular = if reflect_dot_eye <= 0.0 {
                 Color::new(0.0, 0.0, 0.0)
             } else {

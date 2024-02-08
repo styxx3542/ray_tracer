@@ -1,6 +1,5 @@
 use crate::primitives::{Point, Vector, Matrix};
 
-use super::object::Object;
 #[derive(Debug, Clone)]
 pub struct Ray{
     origin: Point,
@@ -9,7 +8,7 @@ pub struct Ray{
 }
 impl Ray {
     pub fn new(origin: Point, direction: Vector) -> Ray{
-        Ray{origin, direction, refractive_indices: vec![]}
+        Ray{origin, direction, refractive_indices: vec![1.0]}
     }
 
     pub fn position(&self, time: f64) -> Point{
@@ -18,6 +17,11 @@ impl Ray {
 
     pub fn get_indices(&self) -> &Vec<f64>{
         &self.refractive_indices
+    }
+
+    pub fn with_indices(mut self, indices: Vec<f64>) -> Ray{
+        self.refractive_indices = indices;
+        self
     }
 
     pub fn add_index(&mut self, refractive_index: f64){
