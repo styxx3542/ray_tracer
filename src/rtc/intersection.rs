@@ -5,6 +5,7 @@ use crate::{
 };
 use std::{cmp::Ord, cmp::Ordering, cmp::PartialOrd, ops::Index};
 
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Intersection<'a> {
     t: f64,
@@ -131,7 +132,6 @@ fn calculate_refraction_state(ray: &Ray, intersection: &Intersection) -> Refract
     // When a ray intersects an object, it checks if it is entering or exiting the objects
     // If it is entering, it pushes the object's refraction index to the stack
     // If it is exiting, it pops the object's refraction index from the stack
-
     let current_index = intersection.object().material().refractive_index();
     let objects = ray.get_indices();
     let is_entering = (*objects)
@@ -476,7 +476,6 @@ mod tests {
         ]);
         let comps = IntersectionState::prepare_computations(&xs[0], &mut r);
         let reflectance = comps.schlick();
-        println!("Reflectance: {}", reflectance);
         assert!(reflectance.approx_eq_low_precision(0.48873));
     }
 }

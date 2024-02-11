@@ -1,4 +1,7 @@
-use crate::{primitives::{Color, Matrix, Point, Tuple}, float::ApproxEq};
+use crate::{
+    float::ApproxEq,
+    primitives::{Color, Matrix, Point, Tuple},
+};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Pattern {
@@ -25,6 +28,13 @@ impl Pattern {
     pub fn new_gradient(a: Color, b: Color) -> Pattern {
         Pattern {
             pattern_type: PatternType::Gradient(GradientPattern { a, b }),
+            ..Default::default()
+        }
+    }
+
+    pub fn new_radial_gradient(a: Color, b: Color) -> Pattern {
+        Pattern {
+            pattern_type: PatternType::RadialGradient(RadialGradientPattern { a, b }),
             ..Default::default()
         }
     }
@@ -113,15 +123,12 @@ struct GradientPattern {
 
 impl PatternAt for GradientPattern {
     fn pattern_at(&self, point: &Point) -> Color {
-        let distance = self.b - self.a;
-        let fraction = point.x() - point.x().floor();
-        self.a + distance * fraction
+        self.a + (self.b - self.a) * point.x()
     }
 }
 
-
 #[derive(Debug, Copy, Clone, PartialEq)]
-struct RingPattern{
+struct RingPattern {
     a: Color,
     b: Color,
 }
@@ -151,11 +158,10 @@ impl PatternAt for CheckersPattern {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-struct RadialGradientPattern{
+struct RadialGradientPattern {
     a: Color,
     b: Color,
 }
-
 
 impl PatternAt for RadialGradientPattern {
     fn pattern_at(&self, point: &Point) -> Color {
@@ -294,38 +300,77 @@ mod tests {
             pattern.pattern_at(&Point::new(0.75, 0.0, 0.0)),
             Color::new(0.25, 0.25, 0.25)
         );
-    } 
+    }
 
     #[test]
     fn ring_pattern() {
         let pattern = Pattern::new_ring(Color::new(1.0, 1.0, 1.0), Color::new(0.0, 0.0, 0.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 0.0, 0.0)), Color::new(1.0, 1.0, 1.0));
-        assert_eq!(pattern.pattern_at(&Point::new(1.0, 0.0, 0.0)), Color::new(0.0, 0.0, 0.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 0.0, 1.0)), Color::new(0.0, 0.0, 0.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.708, 0.0, 0.708)), Color::new(0.0, 0.0, 0.0));
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 0.0, 0.0)),
+            Color::new(1.0, 1.0, 1.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(1.0, 0.0, 0.0)),
+            Color::new(0.0, 0.0, 0.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 0.0, 1.0)),
+            Color::new(0.0, 0.0, 0.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.708, 0.0, 0.708)),
+            Color::new(0.0, 0.0, 0.0)
+        );
     }
 
     #[test]
     fn checkers_should_repeat_in_x() {
         let pattern = Pattern::new_checkers(Color::new(1.0, 1.0, 1.0), Color::new(0.0, 0.0, 0.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 0.0, 0.0)), Color::new(1.0, 1.0, 1.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.99, 0.0, 0.0)), Color::new(1.0, 1.0, 1.0));
-        assert_eq!(pattern.pattern_at(&Point::new(1.01, 0.0, 0.0)), Color::new(0.0, 0.0, 0.0));
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 0.0, 0.0)),
+            Color::new(1.0, 1.0, 1.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.99, 0.0, 0.0)),
+            Color::new(1.0, 1.0, 1.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(1.01, 0.0, 0.0)),
+            Color::new(0.0, 0.0, 0.0)
+        );
     }
 
     #[test]
     fn checkers_should_repeat_in_y() {
         let pattern = Pattern::new_checkers(Color::new(1.0, 1.0, 1.0), Color::new(0.0, 0.0, 0.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 0.0, 0.0)), Color::new(1.0, 1.0, 1.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 0.99, 0.0)), Color::new(1.0, 1.0, 1.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 1.01, 0.0)), Color::new(0.0, 0.0, 0.0));
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 0.0, 0.0)),
+            Color::new(1.0, 1.0, 1.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 0.99, 0.0)),
+            Color::new(1.0, 1.0, 1.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 1.01, 0.0)),
+            Color::new(0.0, 0.0, 0.0)
+        );
     }
 
     #[test]
     fn checkers_should_repeat_in_z() {
         let pattern = Pattern::new_checkers(Color::new(1.0, 1.0, 1.0), Color::new(0.0, 0.0, 0.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 0.0, 0.0)), Color::new(1.0, 1.0, 1.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 0.0, 0.99)), Color::new(1.0, 1.0, 1.0));
-        assert_eq!(pattern.pattern_at(&Point::new(0.0, 0.0, 1.01)), Color::new(0.0, 0.0, 0.0));
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 0.0, 0.0)),
+            Color::new(1.0, 1.0, 1.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 0.0, 0.99)),
+            Color::new(1.0, 1.0, 1.0)
+        );
+        assert_eq!(
+            pattern.pattern_at(&Point::new(0.0, 0.0, 1.01)),
+            Color::new(0.0, 0.0, 0.0)
+        );
     }
 }

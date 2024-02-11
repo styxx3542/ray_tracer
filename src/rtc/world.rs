@@ -19,7 +19,7 @@ impl<'a> World {
         World {
             objects: Vec::new(),
             lights: Vec::new(),
-            max_recursive_depth: 5,
+            max_recursive_depth: 6,
         }
     }
 
@@ -90,7 +90,7 @@ impl<'a> World {
         let r = Ray::new(*point, direction);
         let intersections = self.intersect(&r);
         if let Some(hit) = intersections.hit() {
-            hit.t() < distance
+            hit.t() < distance && hit.object().material().does_cast_shadow() == true
         } else {
             false
         }
@@ -127,6 +127,7 @@ impl<'a> World {
         let cos_i = comps.eyev().dot_product(&comps.normalv());
         let sin2_t = n_ratio.powi(2) * (1.0 - cos_i.powi(2));
         if sin2_t > 1.0 {
+            //total internal reflection
             return Color::black();
         }
 

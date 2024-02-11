@@ -12,6 +12,7 @@ pub struct Material {
     reflective: f64,
     transparency: f64,
     refractive_index: f64,
+    does_cast_shadow: bool,   
 }
 
 impl Material {
@@ -37,6 +38,10 @@ impl Material {
 
     pub fn refractive_index(&self) -> f64 {
         self.refractive_index
+    }
+
+    pub fn does_cast_shadow(&self) -> bool {
+        self.does_cast_shadow
     }
 
     pub fn with_transparency(mut self, transparency: f64) -> Self {
@@ -82,6 +87,11 @@ impl Material {
         self
     }
 
+    pub fn with_shadow(mut self, shadow: bool) -> Self{
+        self.does_cast_shadow = shadow;
+        self
+    }
+
 
     pub fn lighting(
         &self,
@@ -100,7 +110,7 @@ impl Material {
         let lightv = (light.position() - *world_point).normalize();
         let ambient = effective_color * self.ambient;
         let light_dot_normal = lightv.dot_product(normalv);
-        let (diffuse, specular) = if light_dot_normal < 0.0 || in_shadow {
+        let (diffuse, specular) = if light_dot_normal < 0.0 || (in_shadow && self.does_cast_shadow()) {
             (Color::new(0.0, 0.0, 0.0), Color::new(0.0, 0.0, 0.0))
         } else {
             let diffuse = effective_color * self.diffuse * light_dot_normal;
@@ -130,6 +140,7 @@ impl Default for Material {
             reflective: 0.0,
             transparency: 0.0,
             refractive_index: 1.0,
+            does_cast_shadow: true,
         }
     }
 }

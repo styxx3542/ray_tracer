@@ -149,7 +149,7 @@ impl Matrix {
         result[(0, 1)] = -r.sin();
         result[(1, 0)] = r.sin();
         result[(1, 1)] = r.cos();
-        result
+        result * *self
     }
 
     pub fn shear(&self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Matrix {

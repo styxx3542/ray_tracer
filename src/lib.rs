@@ -29,6 +29,7 @@ pub mod rtc {
     pub mod shapes {
         pub mod plane;
         pub mod sphere;
+        pub mod cube;
     }
 }
 mod float {

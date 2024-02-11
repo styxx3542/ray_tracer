@@ -38,6 +38,13 @@ impl<'a> Object {
             ..Default::default()
         } 
     }
+
+    pub fn new_cube() -> Self {
+        Object{
+            shape: Shape::Cube,
+            ..Default::default()
+        }
+    }
     pub fn material(&self) -> Material {
         self.material
     }
@@ -65,6 +72,13 @@ impl<'a> Object {
         let object_normal = self.shape.normal_at(&object_point);
         let world_normal = self.transform_inverse_transpose * object_normal; //convert normal back to world space
         world_normal.normalize()
+    }
+
+    pub fn transform(&self) -> &Matrix {
+        &self.transform
+    }
+    pub fn transform_inverse(&self) -> &Matrix {
+        &self.transform_inverse
     }
 }
 
