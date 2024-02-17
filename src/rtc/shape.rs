@@ -8,11 +8,14 @@ use crate::{
     },
 };
 
+use super::shapes::cylinder::Cylinder;
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Shape {
     Sphere,
     Plane,
     Cube,
+    Cylinder(f64, f64),
 }
 
 impl<'a> Shape {
@@ -21,6 +24,7 @@ impl<'a> Shape {
             Shape::Sphere => Sphere::intersect(ray, object),
             Shape::Plane => Plane::intersects(ray, object),
             Shape::Cube => Cube::intersects(ray, object),
+            Shape::Cylinder(minimum, maximum) => Cylinder::new(*minimum, *maximum).intersects(ray, object),
         }
     }
     pub fn normal_at(&self, object_point: &Point) -> Vector {
@@ -28,6 +32,7 @@ impl<'a> Shape {
             Shape::Sphere => Sphere::normal_at(object_point),
             Shape::Plane => Plane::normal_at(object_point),
             Shape::Cube => Cube::normal_at(object_point),
+            Shape::Cylinder(minimum, maximum) => Cylinder::new(*minimum, *maximum).normal_at(object_point),
         }
     }
 }

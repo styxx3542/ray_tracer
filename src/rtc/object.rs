@@ -21,26 +21,38 @@ impl<'a> Object {
         }
     }
 
-    pub fn new_glass_sphere() -> Self{
+    pub fn new_glass_sphere() -> Self {
         Object {
             shape: Shape::Sphere,
             ..Default::default()
-        }.set_material(&Material::new().with_transparency(1.0).with_refractive_index(1.5))
+        }
+        .set_material(
+            &Material::new()
+                .with_transparency(1.0)
+                .with_refractive_index(1.5),
+        )
     }
 
-    pub fn to_object_space(&self, world_point: &Point) -> Point{
+    pub fn to_object_space(&self, world_point: &Point) -> Point {
         self.transform_inverse * *world_point
+    }
+
+    pub fn new_cylinder(minimum: f64, maximum: f64) -> Self {
+        Object {
+            shape: Shape::Cylinder(minimum, maximum),
+            ..Default::default()
+        }
     }
 
     pub fn new_plane() -> Self {
         Object {
             shape: Shape::Plane,
             ..Default::default()
-        } 
+        }
     }
 
     pub fn new_cube() -> Self {
-        Object{
+        Object {
             shape: Shape::Cube,
             ..Default::default()
         }
@@ -81,7 +93,6 @@ impl<'a> Object {
         &self.transform_inverse
     }
 }
-
 
 impl Default for Object {
     fn default() -> Self {

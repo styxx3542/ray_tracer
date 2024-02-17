@@ -30,6 +30,7 @@ pub mod rtc {
         pub mod plane;
         pub mod sphere;
         pub mod cube;
+        pub mod cylinder;
     }
 }
 mod float {
