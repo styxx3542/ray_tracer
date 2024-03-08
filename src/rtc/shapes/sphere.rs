@@ -8,7 +8,7 @@ use crate::primitives::Tuple;
 pub struct Sphere{} 
 
 impl<'a> Sphere{
-    pub fn intersect(ray: &Ray, object: &'a Object) -> Intersections<'a>{
+    pub fn intersects(ray: &Ray, object: &'a Object) -> Intersections<'a>{
         let mut intersections = Intersections::new();
         let sphere_to_ray = Point::zero() - ray.origin();
         let tc = sphere_to_ray.dot_product(&ray.direction().normalize());

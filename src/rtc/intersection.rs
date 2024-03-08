@@ -76,6 +76,10 @@ impl<'a> Intersections<'a> {
         self.intersections.push(Intersection::new(t, object))
     }
 
+    pub fn extend(&mut self, other: Self) {
+        self.intersections.extend(other.intersections);
+    }
+
     pub fn count(&self) -> usize {
         self.intersections.len()
     }

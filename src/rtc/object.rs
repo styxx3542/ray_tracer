@@ -39,7 +39,26 @@ impl<'a> Object {
 
     pub fn new_cylinder(minimum: f64, maximum: f64) -> Self {
         Object {
-            shape: Shape::Cylinder(minimum, maximum),
+            shape: Shape::Cylinder(minimum, maximum, false),
+            ..Default::default()
+        }
+    }
+    pub fn new_closed_cylinder(minimum: f64, maximum: f64) -> Self {
+        Object {
+            shape: Shape::Cylinder(minimum, maximum, true),
+            ..Default::default()
+        }
+    }
+    pub fn new_closed_cone(minimum: f64, maximum: f64) -> Self {
+        Object {
+            shape: Shape::Cylinder(minimum, maximum, true),
+            ..Default::default()
+        }
+    }
+
+    pub fn new_cone(minimum: f64, maximum: f64) -> Self {
+        Object {
+            shape: Shape::Cone(minimum, maximum, false),
             ..Default::default()
         }
     }

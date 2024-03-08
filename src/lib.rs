@@ -31,6 +31,7 @@ pub mod rtc {
         pub mod sphere;
         pub mod cube;
         pub mod cylinder;
+        pub mod cone;
     }
 }
 mod float {
