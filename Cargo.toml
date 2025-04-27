@@ -9,6 +9,7 @@ debug = true
 
 [dependencies]
 approx = "0.5.1"
+image = "0.24.7"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
